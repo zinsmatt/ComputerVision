@@ -16,6 +16,7 @@ void houghLines(Mat&);
 void hough_test(Mat&);
 void print_img(Mat& im);
 void webcam_stream();
+void webcam_corners();
 
 
 bool descendSorting(int i, int j) { return i>j; }
@@ -72,7 +73,8 @@ int main(int argc, char* argv[])
 	//}
 	//houghLines(img);
 	//webcam_stream();
-	hough_test(img);
+	//hough_test(img);
+	webcam_corners();
 	return 0;
 
 
@@ -363,4 +365,59 @@ void webcam_stream()
 		}
 	}
 	return;
+}
+
+void webcam_corners()
+{
+	VideoCapture vid = VideoCapture(0);
+	if(vid.isOpened() == false)
+	{
+		cerr << "Cannot open webcam\n";
+		return;
+	}
+
+	// parameters
+	int blockSize = 4;
+	int apertureSize = 3;
+	double k = 0.02;
+	int limite = 150;
+
+	namedWindow("fen",CV_WINDOW_AUTOSIZE);
+	namedWindow("fen2",CV_WINDOW_AUTOSIZE);
+	bool recording = true;
+	Mat points,points_norm,points_norm_scaled, frame, gray_frame, frame_norm;
+	vid.read(frame);
+	//points = Mat::zeros(frame.size(), CV_32FC1);
+	Mat gray_frame_rgb;
+
+	while(recording)
+	{
+		int nb_points = 0;
+		vid.read(frame);
+		cvtColor(frame,gray_frame,CV_BGR2GRAY);
+
+		//cout << gray_frame.type() << "\n";
+
+		cornerHarris(gray_frame, points, blockSize, apertureSize, k, BORDER_DEFAULT);
+		normalize(points, points_norm, 0, 255, NORM_MINMAX, CV_32FC1, Mat());
+		convertScaleAbs(points_norm, points_norm_scaled);
+	//print_img(points_norm_scaled);
+		cvtColor(gray_frame,gray_frame_rgb,CV_GRAY2BGR);
+		for (int i = 0; i < points_norm.rows; i++)
+		{
+			for (int j = 0; j < points_norm.cols; j++)
+			{
+				if ((int)points_norm.at<float>(i, j) >= limite && nb_points<500)
+				{
+					circle(gray_frame_rgb, Point(j, i), 3, Scalar(255,0, 0), 2, 8, 0);
+					++nb_points;
+				}
+			}
+		}
+		imshow("fen",points_norm_scaled);
+		imshow("fen2",gray_frame_rgb);
+		int ret = waitKey(15);
+		if(ret == 1048603)
+			recording = false;
+	}
 }
