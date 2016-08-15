@@ -213,6 +213,9 @@ void houghLines(Mat &img)
 
 void hough_test(Mat& im)
 {
+	Mat im_coul;
+	cvtColor(im,im_coul,CV_GRAY2RGB);
+
 	cout << "cos 180 = " << cos(TO_RADIAN(180)) << endl;
 	waitKey(0);
 	// tetha 0 ==> 280
@@ -227,7 +230,7 @@ void hough_test(Mat& im)
 	//print_img(dst);
 	namedWindow("fen",CV_WINDOW_AUTOSIZE);
 	namedWindow("fen2",CV_WINDOW_AUTOSIZE);
-
+	namedWindow("fen3",CV_WINDOW_AUTOSIZE);
 	//imshow("fen",dst);
 	//waitKey(0);
 	int nb = 0;
@@ -298,10 +301,9 @@ void hough_test(Mat& im)
 	std::cout << "END sorting \n";
 	//cout << "values.size = " << values.size() << std::endl;
 	//for(int k=0;k<10;k++) cout << " " << values[k] << "\n";
-	int limit = values[ 4 ]; //(int)round(values.size()/100)];
+	int limit = values[5]; //(int)round(values.size()/100)];
 	cout << "limit = " << limit << endl;
 
-	int x0 = 0, x1 = im.cols-1;
 	double y1,y0;
 	Point a,b;
 	int angle,d;
@@ -310,25 +312,39 @@ void hough_test(Mat& im)
 	{
 		for(int i=0;i<acc.cols;i++)
 		{
-			if(acc.at<uchar>(j,i)>limit)
+			if(acc.at<uchar>(j,i)>=limit)
 			{
 			//	d = x*cos(angle)-y*sin(angle);
 				// y = (x*cos(angle) - d ) / sin(angle)
-				d = j;
+				int x0 = 0, x1 = im.cols-1;
+				d = j - 250;
 				angle = i;
-				cout << "d =  " << d << " angle = " << angle << "\n";
-				y0 = d / sin(TO_RADIAN(angle));
-				y1 = (d - x1 * cos(TO_RADIAN(angle))) / sin(TO_RADIAN(angle));
+
+				if(angle == 0)	// vertical line
+				{
+					cout << "VERTICAL : d = "<<d<<" angle = 0\n";
+					y0 = 0;
+					y1 = im.rows-1;
+					x0 = d;
+					x1 = d;
+				}else
+				{
+					cout << "HORIZONTAL : d =  " << d << " angle = " << angle << "\n";
+					y0 = d / sin(TO_RADIAN(angle));
+					y1 = (d - x1 * cos(TO_RADIAN(angle))) / sin(TO_RADIAN(angle));
+					cout << "---> x0 = " << x0 << " y0 = " << y0 << endl;
+				}
+
 				a.x = round(x0);
 				a.y = round(y0);
 				b.x = round(x1);
 				b.y = round(y1);
-				line(im,a,b,Scalar(0,1,0));
+				line(im_coul,a,b,Scalar(0,255,0),2);
 			}
 		}
 	}
 	//print_img(acc);
-	imshow("fen",im);
+	imshow("fen3",im_coul);
 	waitKey(0);
 	cout << "####### quit ##########" << endl;
 }
