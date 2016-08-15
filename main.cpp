@@ -23,7 +23,7 @@ bool descendSorting(int i, int j) { return i>j; }
 
 int main(int argc, char* argv[])
 {
-	Mat img = imread("linkoping.jpg", CV_LOAD_IMAGE_UNCHANGED);
+	Mat img = imread("square.jpg"/*linkoping.jpg"*/, CV_LOAD_IMAGE_UNCHANGED);
 	if (img.empty())
 	{
 		std::cerr << "Probleme chargement image\n";
@@ -73,8 +73,8 @@ int main(int argc, char* argv[])
 	//}
 	//houghLines(img);
 	//webcam_stream();
-	//hough_test(img);
-	webcam_corners();
+	hough_test(img);
+	//webcam_corners();
 	return 0;
 
 
@@ -213,11 +213,11 @@ void houghLines(Mat &img)
 
 void hough_test(Mat& im)
 {
-
 	cout << "cos 180 = " << cos(TO_RADIAN(180)) << endl;
 	waitKey(0);
 	// tetha 0 ==> 280
-	Mat acc = Mat::zeros(100, 360, 1);
+	Mat acc = Mat::zeros(500, 180, CV_8UC1);
+	Mat accu2 = acc.clone();
 	Mat dst;
 
 	std::cout << "image type : " << im.type() << endl;
@@ -226,38 +226,57 @@ void hough_test(Mat& im)
 
 	//print_img(dst);
 	namedWindow("fen",CV_WINDOW_AUTOSIZE);
+	namedWindow("fen2",CV_WINDOW_AUTOSIZE);
+
 	//imshow("fen",dst);
 	//waitKey(0);
-
+	int nb = 0;
 	for(int j=0;j<im.rows;j++)
 	{
 		for(int i=0;i<im.cols;i++)
 		{
 			//cout << "\nx = " << i << " y = " << j << endl;
-			if(im.at<uchar>(j,i) == 255)
+			if(dst.at<uchar>(j,i) == 255)
 			{
 				//cout << "\nx = " << i << " y =  <====" << j << endl;
-				for(int angle = 0; angle <= 360; angle++)
+				nb++;
+				for(int angle = 0; angle <= 180; angle++)
 				{
 					//cout << angle << " ";
-					double d = i * cos(TO_RADIAN(angle))- j * sin(TO_RADIAN(angle));
+					double d = i * cos(TO_RADIAN(angle)) + j * sin(TO_RADIAN(angle));
 					//std::cout << "d = " << round(d) << " angle = " << angle << endl;
-					if(d>0 && d <100)
-						acc.at<uchar>((round(d)),angle) = 100;
+
+					if(d+250>0)
+					{
+						++acc.at<uchar>(round(d+250),angle);
 						//++acc.at<uchar>((round(d)),angle);
+						//accu2.at<uchar>(round(d),angle) = 255;
+					}
 				}
-				break;
+				//break;
 			}
 		}
 	}
+	Mat accu_norm, accu_scaled;
+	/*Mat accu = Mat::zeros(100, 360, 1);
+	accu = acc.clone();
 
-	Mat accu = Mat::zeros(100, 360, 1);
 	Mat accu3;
-	cvtColor(accu,accu3,CV_GRAY2RGB);
+	cout << "accu type = " << accu.type() << endl;
+	accu.convertTo(accu,CV_8U);
+	cvtColor(accu,accu3,CV_GRAY2RGB);*/
 	//convertScaleAbs(acc,accu);
-	print_img(accu);
+	//print_img(accu);
+	//print_img(acc);
+	//acc.convertTo(acc,CV_8U);
+	//normalize(acc,acc);
 
-	imshow("fen",accu3);
+	normalize(acc, accu_norm, 0, 255, NORM_MINMAX, CV_32FC1, Mat());
+	convertScaleAbs(accu_norm, accu_scaled);
+	cout << "nb edge points = " << nb << endl;
+	imshow("fen",accu_scaled);
+	imshow("fen2",dst);
+	//imshow("fen2",accu2);
 	waitKey(0);
 
 
@@ -277,9 +296,9 @@ void hough_test(Mat& im)
 	std::cout << "END inserting \n";
 	std::sort(values.begin(),values.end(),descendSorting);
 	std::cout << "END sorting \n";
-	cout << "values.size = " << values.size() << std::endl;
-	for(int k=0;k<10;k++) cout << " " << values[k] << "\n";
-	int limit = values[(int)round(values.size()/100)];
+	//cout << "values.size = " << values.size() << std::endl;
+	//for(int k=0;k<10;k++) cout << " " << values[k] << "\n";
+	int limit = values[ 4 ]; //(int)round(values.size()/100)];
 	cout << "limit = " << limit << endl;
 
 	int x0 = 0, x1 = im.cols-1;
@@ -297,8 +316,9 @@ void hough_test(Mat& im)
 				// y = (x*cos(angle) - d ) / sin(angle)
 				d = j;
 				angle = i;
-				y0 = -d / sin(TO_RADIAN(angle));
-				y1 = (x1 * cos(TO_RADIAN(angle)) -d) / sin(TO_RADIAN(angle));
+				cout << "d =  " << d << " angle = " << angle << "\n";
+				y0 = d / sin(TO_RADIAN(angle));
+				y1 = (d - x1 * cos(TO_RADIAN(angle))) / sin(TO_RADIAN(angle));
 				a.x = round(x0);
 				a.y = round(y0);
 				b.x = round(x1);
@@ -385,7 +405,7 @@ void webcam_corners()
 	namedWindow("fen",CV_WINDOW_AUTOSIZE);
 	namedWindow("fen2",CV_WINDOW_AUTOSIZE);
 	bool recording = true;
-	Mat points,points_norm,points_norm_scaled, frame, gray_frame, frame_norm;
+	Mat points, points_norm, points_norm_scaled, frame, gray_frame, frame_norm;
 	vid.read(frame);
 	//points = Mat::zeros(frame.size(), CV_32FC1);
 	Mat gray_frame_rgb;
