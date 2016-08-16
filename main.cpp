@@ -23,7 +23,7 @@ bool descendSorting(int i, int j) { return i>j; }
 
 int main(int argc, char* argv[])
 {
-	Mat img = imread("square.jpg"/*linkoping.jpg"*/, CV_LOAD_IMAGE_UNCHANGED);
+	Mat img = imread(/*"square.jpg"*//*"linkoping.jpg"*/"building.jpg", CV_LOAD_IMAGE_UNCHANGED);
 	if (img.empty())
 	{
 		std::cerr << "Probleme chargement image\n";
@@ -65,7 +65,12 @@ int main(int argc, char* argv[])
 
 	Mat img_color;
 	img.copyTo(img_color);
-	cvtColor(img, img, CV_BGR2GRAY);
+	try
+	{
+		cvtColor(img, img, CV_BGR2GRAY);
+	}catch(Exception e){
+		cout << "image not RGB\n";
+	}
 
 	//harrisDetect(img, img_color);
 	//for (int k = 10; k <= 100; k += 5) {
@@ -219,7 +224,7 @@ void hough_test(Mat& im)
 	cout << "cos 180 = " << cos(TO_RADIAN(180)) << endl;
 	waitKey(0);
 	// tetha 0 ==> 280
-	Mat acc = Mat::zeros(500, 180, CV_8UC1);
+	Mat acc = Mat::zeros(2000, 180, CV_8UC1);
 	Mat accu2 = acc.clone();
 	Mat dst;
 
@@ -249,9 +254,9 @@ void hough_test(Mat& im)
 					double d = i * cos(TO_RADIAN(angle)) + j * sin(TO_RADIAN(angle));
 					//std::cout << "d = " << round(d) << " angle = " << angle << endl;
 
-					if(d+250>0)
+					if(d+1000>0)
 					{
-						++acc.at<uchar>(round(d+250),angle);
+						++acc.at<uchar>(round(d+1000),angle);
 						//++acc.at<uchar>((round(d)),angle);
 						//accu2.at<uchar>(round(d),angle) = 255;
 					}
@@ -301,7 +306,7 @@ void hough_test(Mat& im)
 	std::cout << "END sorting \n";
 	//cout << "values.size = " << values.size() << std::endl;
 	//for(int k=0;k<10;k++) cout << " " << values[k] << "\n";
-	int limit = values[5]; //(int)round(values.size()/100)];
+	int limit = values[10]; //(int)round(values.size()/100)];
 	cout << "limit = " << limit << endl;
 
 	double y1,y0;
@@ -317,7 +322,7 @@ void hough_test(Mat& im)
 			//	d = x*cos(angle)-y*sin(angle);
 				// y = (x*cos(angle) - d ) / sin(angle)
 				int x0 = 0, x1 = im.cols-1;
-				d = j - 250;
+				d = (j - 1000);
 				angle = i;
 
 				if(angle == 0)	// vertical line
@@ -339,7 +344,7 @@ void hough_test(Mat& im)
 				a.y = round(y0);
 				b.x = round(x1);
 				b.y = round(y1);
-				line(im_coul,a,b,Scalar(0,255,0),2);
+				line(im_coul,a,b,Scalar(0,255,0),1);
 			}
 		}
 	}
