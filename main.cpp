@@ -13,7 +13,7 @@ using namespace cv;
 void harrisDetect(Mat&, Mat&);
 void contour(Mat&,int);
 void houghLines(Mat&);
-void hough_test(Mat&);
+void m_hough_lines(Mat&);
 void print_img(Mat& im);
 void webcam_stream();
 void webcam_corners();
@@ -23,7 +23,7 @@ bool descendSorting(int i, int j) { return i>j; }
 
 int main(int argc, char* argv[])
 {
-	Mat img = imread(/*"square.jpg"*//*"linkoping.jpg"*/"building.jpg", CV_LOAD_IMAGE_UNCHANGED);
+	Mat img = imread(/*"square.jpg"*//*"linkoping.jpg"*//*"building.jpg"*/"sudoku.jpg", CV_LOAD_IMAGE_UNCHANGED);
 	if (img.empty())
 	{
 		std::cerr << "Probleme chargement image\n";
@@ -78,7 +78,7 @@ int main(int argc, char* argv[])
 	//}
 	//houghLines(img);
 	//webcam_stream();
-	hough_test(img);
+	m_hough_lines(img);
 	//webcam_corners();
 	return 0;
 
@@ -216,76 +216,52 @@ void houghLines(Mat &img)
 }
 
 
-void hough_test(Mat& im)
+void m_hough_lines(Mat& im)
 {
 	Mat im_coul;
 	cvtColor(im,im_coul,CV_GRAY2RGB);
 
-	cout << "cos 180 = " << cos(TO_RADIAN(180)) << endl;
-	waitKey(0);
-	// tetha 0 ==> 280
-	Mat acc = Mat::zeros(2000, 180, CV_8UC1);
-	Mat accu2 = acc.clone();
-	Mat dst;
+	int height_d = ((im.rows>im.cols) ? im.rows : im.cols) * 2 * 1.5;
+	int offset = round(height_d / 2);
+	Mat acc = Mat::zeros(height_d, 360, CV_16UC1);
+	Mat edges, accu_reduced = Mat::zeros(200,360,CV_16UC1);
 
-	std::cout << "image type : " << im.type() << endl;
-	Canny(im, dst, 150, 200, 3);
+	Canny(im, edges, 150, 200, 3);
 
-
-	//print_img(dst);
 	namedWindow("fen",CV_WINDOW_AUTOSIZE);
 	namedWindow("fen2",CV_WINDOW_AUTOSIZE);
 	namedWindow("fen3",CV_WINDOW_AUTOSIZE);
-	//imshow("fen",dst);
-	//waitKey(0);
+
 	int nb = 0;
+	// fill the accumulator in hough space
 	for(int j=0;j<im.rows;j++)
 	{
 		for(int i=0;i<im.cols;i++)
 		{
-			//cout << "\nx = " << i << " y = " << j << endl;
-			if(dst.at<uchar>(j,i) == 255)
+			if(edges.at<uchar>(j,i) == 255)
 			{
-				//cout << "\nx = " << i << " y =  <====" << j << endl;
 				nb++;
-				for(int angle = 0; angle <= 180; angle++)
+				for(float angle = 0; angle <= 180; angle+=0.5)
 				{
-					//cout << angle << " ";
 					double d = i * cos(TO_RADIAN(angle)) + j * sin(TO_RADIAN(angle));
-					//std::cout << "d = " << round(d) << " angle = " << angle << endl;
-
-					if(d+1000>0)
-					{
-						++acc.at<uchar>(round(d+1000),angle);
-						//++acc.at<uchar>((round(d)),angle);
-						//accu2.at<uchar>(round(d),angle) = 255;
-					}
+					++acc.at<uint16_t>(round(d+offset),angle*2);
+					++accu_reduced.at<uint16_t>(round(100 + (d*100/offset)),angle*2);
 				}
-				//break;
 			}
 		}
 	}
-	Mat accu_norm, accu_scaled;
-	/*Mat accu = Mat::zeros(100, 360, 1);
-	accu = acc.clone();
 
-	Mat accu3;
-	cout << "accu type = " << accu.type() << endl;
-	accu.convertTo(accu,CV_8U);
-	cvtColor(accu,accu3,CV_GRAY2RGB);*/
-	//convertScaleAbs(acc,accu);
-	//print_img(accu);
-	//print_img(acc);
-	//acc.convertTo(acc,CV_8U);
-	//normalize(acc,acc);
+	Mat accu_norm, accu_scaled,	color_map;
 
-	normalize(acc, accu_norm, 0, 255, NORM_MINMAX, CV_32FC1, Mat());
+	// nomarlize accumlator
+	normalize(accu_reduced, accu_norm, 0, 255, NORM_MINMAX, CV_32FC1, Mat());
 	convertScaleAbs(accu_norm, accu_scaled);
-	cout << "nb edge points = " << nb << endl;
-	imshow("fen",accu_scaled);
-	imshow("fen2",dst);
-	//imshow("fen2",accu2);
-	waitKey(0);
+	// apply colormap
+	applyColorMap(accu_scaled, color_map, COLORMAP_HOT);
+
+	// display accumulator and edges
+	imshow("fen",color_map);
+	imshow("fen2",edges);
 
 
 	// find peaks
@@ -294,36 +270,30 @@ void hough_test(Mat& im)
 	{
 		for(int i=0;i<acc.cols;i++)
 		{
-			//cout << "i = " << i << "j = " << j << endl;
-			int val = (int) acc.at<uchar>(j,i);
+			int val = (int) acc.at<uint16_t>(j,i);
 			if(val>5)
 				values.push_back(val);
 		}
-		//std::cout << j << endl;
 	}
-	std::cout << "END inserting \n";
-	std::sort(values.begin(),values.end(),descendSorting);
-	std::cout << "END sorting \n";
-	//cout << "values.size = " << values.size() << std::endl;
-	//for(int k=0;k<10;k++) cout << " " << values[k] << "\n";
-	int limit = values[10]; //(int)round(values.size()/100)];
-	cout << "limit = " << limit << endl;
+
+	std::sort(values.begin(),values.end(),descendSorting);		// sort values
+	int limit = values[50];
 
 	double y1,y0;
 	Point a,b;
-	int angle,d;
-	//print_img(acc);
+	float angle;
+	int d;
+
+	// draw lines
 	for(int j=0;j<acc.rows;j++)
 	{
 		for(int i=0;i<acc.cols;i++)
 		{
-			if(acc.at<uchar>(j,i)>=limit)
+			if(acc.at<uint16_t>(j,i)>=limit)
 			{
-			//	d = x*cos(angle)-y*sin(angle);
-				// y = (x*cos(angle) - d ) / sin(angle)
 				int x0 = 0, x1 = im.cols-1;
-				d = (j - 1000);
-				angle = i;
+				d = (j - offset);
+				angle = i/2;
 
 				if(angle == 0)	// vertical line
 				{
@@ -337,9 +307,7 @@ void hough_test(Mat& im)
 					cout << "HORIZONTAL : d =  " << d << " angle = " << angle << "\n";
 					y0 = d / sin(TO_RADIAN(angle));
 					y1 = (d - x1 * cos(TO_RADIAN(angle))) / sin(TO_RADIAN(angle));
-					cout << "---> x0 = " << x0 << " y0 = " << y0 << endl;
 				}
-
 				a.x = round(x0);
 				a.y = round(y0);
 				b.x = round(x1);
@@ -348,10 +316,9 @@ void hough_test(Mat& im)
 			}
 		}
 	}
-	//print_img(acc);
+
 	imshow("fen3",im_coul);
 	waitKey(0);
-	cout << "####### quit ##########" << endl;
 }
 
 
