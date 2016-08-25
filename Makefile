@@ -114,6 +114,54 @@ Computer_Vision/fast:
 	$(MAKE) -f CMakeFiles/Computer_Vision.dir/build.make CMakeFiles/Computer_Vision.dir/build
 .PHONY : Computer_Vision/fast
 
+hough.o: hough.cpp.o
+.PHONY : hough.o
+
+# target to build an object file
+hough.cpp.o:
+	$(MAKE) -f CMakeFiles/Computer_Vision.dir/build.make CMakeFiles/Computer_Vision.dir/hough.cpp.o
+.PHONY : hough.cpp.o
+
+hough.i: hough.cpp.i
+.PHONY : hough.i
+
+# target to preprocess a source file
+hough.cpp.i:
+	$(MAKE) -f CMakeFiles/Computer_Vision.dir/build.make CMakeFiles/Computer_Vision.dir/hough.cpp.i
+.PHONY : hough.cpp.i
+
+hough.s: hough.cpp.s
+.PHONY : hough.s
+
+# target to generate assembly for a file
+hough.cpp.s:
+	$(MAKE) -f CMakeFiles/Computer_Vision.dir/build.make CMakeFiles/Computer_Vision.dir/hough.cpp.s
+.PHONY : hough.cpp.s
+
+images.o: images.cpp.o
+.PHONY : images.o
+
+# target to build an object file
+images.cpp.o:
+	$(MAKE) -f CMakeFiles/Computer_Vision.dir/build.make CMakeFiles/Computer_Vision.dir/images.cpp.o
+.PHONY : images.cpp.o
+
+images.i: images.cpp.i
+.PHONY : images.i
+
+# target to preprocess a source file
+images.cpp.i:
+	$(MAKE) -f CMakeFiles/Computer_Vision.dir/build.make CMakeFiles/Computer_Vision.dir/images.cpp.i
+.PHONY : images.cpp.i
+
+images.s: images.cpp.s
+.PHONY : images.s
+
+# target to generate assembly for a file
+images.cpp.s:
+	$(MAKE) -f CMakeFiles/Computer_Vision.dir/build.make CMakeFiles/Computer_Vision.dir/images.cpp.s
+.PHONY : images.cpp.s
+
 main.o: main.cpp.o
 .PHONY : main.o
 
@@ -138,6 +186,54 @@ main.cpp.s:
 	$(MAKE) -f CMakeFiles/Computer_Vision.dir/build.make CMakeFiles/Computer_Vision.dir/main.cpp.s
 .PHONY : main.cpp.s
 
+utils.o: utils.cpp.o
+.PHONY : utils.o
+
+# target to build an object file
+utils.cpp.o:
+	$(MAKE) -f CMakeFiles/Computer_Vision.dir/build.make CMakeFiles/Computer_Vision.dir/utils.cpp.o
+.PHONY : utils.cpp.o
+
+utils.i: utils.cpp.i
+.PHONY : utils.i
+
+# target to preprocess a source file
+utils.cpp.i:
+	$(MAKE) -f CMakeFiles/Computer_Vision.dir/build.make CMakeFiles/Computer_Vision.dir/utils.cpp.i
+.PHONY : utils.cpp.i
+
+utils.s: utils.cpp.s
+.PHONY : utils.s
+
+# target to generate assembly for a file
+utils.cpp.s:
+	$(MAKE) -f CMakeFiles/Computer_Vision.dir/build.make CMakeFiles/Computer_Vision.dir/utils.cpp.s
+.PHONY : utils.cpp.s
+
+webcam.o: webcam.cpp.o
+.PHONY : webcam.o
+
+# target to build an object file
+webcam.cpp.o:
+	$(MAKE) -f CMakeFiles/Computer_Vision.dir/build.make CMakeFiles/Computer_Vision.dir/webcam.cpp.o
+.PHONY : webcam.cpp.o
+
+webcam.i: webcam.cpp.i
+.PHONY : webcam.i
+
+# target to preprocess a source file
+webcam.cpp.i:
+	$(MAKE) -f CMakeFiles/Computer_Vision.dir/build.make CMakeFiles/Computer_Vision.dir/webcam.cpp.i
+.PHONY : webcam.cpp.i
+
+webcam.s: webcam.cpp.s
+.PHONY : webcam.s
+
+# target to generate assembly for a file
+webcam.cpp.s:
+	$(MAKE) -f CMakeFiles/Computer_Vision.dir/build.make CMakeFiles/Computer_Vision.dir/webcam.cpp.s
+.PHONY : webcam.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -147,9 +243,21 @@ help:
 	@echo "... Computer_Vision"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... hough.o"
+	@echo "... hough.i"
+	@echo "... hough.s"
+	@echo "... images.o"
+	@echo "... images.i"
+	@echo "... images.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... utils.o"
+	@echo "... utils.i"
+	@echo "... utils.s"
+	@echo "... webcam.o"
+	@echo "... webcam.i"
+	@echo "... webcam.s"
 .PHONY : help
 
 
