@@ -9,6 +9,7 @@ namespace cv{
 bool descendSorting(int i, int j) ;
 void houghLines(cv::Mat&);
 void myHoughLines(cv::Mat&);
+void houghCircles(cv::Mat&);
 
 #endif // HOUGH_H
 

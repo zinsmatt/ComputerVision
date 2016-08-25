@@ -64,6 +64,7 @@ void myHoughLines(Mat& im)
 	Mat acc = Mat::zeros(height_d, 360, CV_16UC1);
 	Mat edges, accu_reduced = Mat::zeros(200,360,CV_16UC1);
 
+	GaussianBlur(im,im,Size(3,3),3);
 	Canny(im, edges, 150, 200, 3);
 
 	namedWindow("Hough Space",CV_WINDOW_AUTOSIZE);
@@ -158,4 +159,28 @@ void myHoughLines(Mat& im)
 	waitKey(0);
 }
 
+void houghCircles(Mat& img)
+{
+	/* OpenCV function to detect circles */
+	Mat img_coul, blurred, edges;
+	cvtColor(img,img_coul,CV_GRAY2RGB);
 
+	int threshold1 = 100, threshold2 = 200;
+	GaussianBlur(img,blurred,Size(3,3),0);
+
+	vector<Vec3f> circles;
+	HoughCircles(blurred,circles,CV_HOUGH_GRADIENT,1,img.rows/12,200,55,0,0);
+	std::cout << "size = " << circles.size() << std::endl;
+	for(int i=0;i<circles.size();i++)
+	{
+		Point center(cvRound(circles[i][0]),cvRound(circles[i][1]));
+		std::cout << "circle : " << center.x << " " << center.y << std::endl;
+		int radius = cvRound(circles[i][2]);
+		std::cout <<"radius : " << radius << std::endl;
+		circle(img_coul,center,radius,Scalar(0,255,0),3);
+	}
+
+	namedWindow("Circles",CV_WINDOW_AUTOSIZE);
+	imshow("Circles",img_coul);
+	waitKey(0);
+}

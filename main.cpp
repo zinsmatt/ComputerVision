@@ -20,6 +20,8 @@ int main(int argc, char* argv[])
 	const char* name2 = "linkoping.jpg";
 	const char* name3 = "building.jpg";
 	const char* name4 = "sudoku.jpg";
+	const char* name5 = "boules.jpg";
+	const char* name6 = "coins.jpg";
 
 	Mat img = imread(name2, CV_LOAD_IMAGE_UNCHANGED);
 	if (img.empty())
@@ -44,7 +46,7 @@ int main(int argc, char* argv[])
 	//webcam_edges();
 	myHoughLines(img);
 	//webcam_corners();
-	//return 0;
+	//houghCircles(img);
 
 	destroyAllWindows();
 
