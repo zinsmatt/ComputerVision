@@ -16,12 +16,12 @@ using namespace cv;
 
 int main(int argc, char* argv[])
 {
-	const char* name1 = "square.jpg";
-	const char* name2 = "linkoping.jpg";
-	const char* name3 = "building.jpg";
-	const char* name4 = "sudoku.jpg";
-	const char* name5 = "boules.jpg";
-	const char* name6 = "coins.jpg";
+	const char* name1 = "images/square.jpg";
+	const char* name2 = "images/linkoping.jpg";
+	const char* name3 = "images/building.jpg";
+	const char* name4 = "images/sudoku.jpg";
+	const char* name5 = "images/boules.jpg";
+	const char* name6 = "images/coins.jpg";
 
 	Mat img = imread(name2, CV_LOAD_IMAGE_UNCHANGED);
 	if (img.empty())
