@@ -23,8 +23,9 @@ int main(int argc, char* argv[])
 	const char* name5 = "images/boules.jpg";
 	const char* name6 = "images/coins.jpg";
 	const char* name7 = "images/circle.png";
+	const char* name8 = "images/tournesols.jpg";
 
-	Mat img = imread(name7, CV_LOAD_IMAGE_UNCHANGED);
+	Mat img = imread(name5, CV_LOAD_IMAGE_UNCHANGED);
 	if (img.empty())
 	{
 		std::cerr << "Probleme chargement image\n";

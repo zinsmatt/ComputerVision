@@ -190,15 +190,16 @@ void voteInAccu(Mat& accu, int pt_x, int pt_y, float dx, float dy)
 	//add a vote in the accu (dx,dy) should be normalized
 	float x = pt_x, y = pt_y;
 	accu.at<int>(pt_y,pt_x)--;
-	while(round(x) < accu.rows && round(y) < accu.cols && round(x) > 0 && round(y) > 0)
+	while(round(x) < accu.cols && round(y) < accu.rows && round(x) > 0 && round(y) > 0)
 	{
+		//std::cout << "y = " << round(y) << " x = " << round(x) << std::endl;
 		accu.at<int>(round(y),round(x))++;
 		y += dy;
 		x += dx;
 	}
 
 	x = pt_x; y = pt_y;
-	while(round(x) < accu.rows && round(y) < accu.cols && round(x) > 0 && round(y) > 0)
+	while(round(x) < accu.cols && round(y) < accu.rows && round(x) > 0 && round(y) > 0)
 	{
 		accu.at<int>(cvRound(y),cvRound(x))++;
 		y -= dy;
@@ -225,7 +226,7 @@ void myHoughCircles(Mat& img)
 	Canny(blurred,edges,150,200);
 
 	namedWindow("Edges",CV_WINDOW_AUTOSIZE);
-	imshow("fen",edges);
+	imshow("Edges",edges);
 
 	// Find centers
 	Mat accu = Mat::zeros(img.rows,img.cols,CV_32SC1);
@@ -246,14 +247,16 @@ void myHoughCircles(Mat& img)
 		}
 		if(stop) break;
 	}
-	Mat accu_norm, accu_scaled;
+	Mat accu_norm, accu_scaled, accu_colored;
 	normalize(accu, accu_norm, 0, 255, NORM_MINMAX, CV_32SC1);
 	convertScaleAbs(accu_norm,accu_scaled);
 
 	GaussianBlur(accu_scaled,accu_scaled,Size(5,5),5);
 
+	// apply colormap
+	applyColorMap(accu_scaled, accu_colored, COLORMAP_JET);
 	namedWindow("Hough Space",CV_WINDOW_AUTOSIZE);
-	imshow("Hough Space",accu_scaled);
+	imshow("Hough Space",accu_colored);
 
 	std::vector<uchar> accu_values;
 	for(int j=0; j<accu.rows; ++j)
@@ -265,7 +268,7 @@ void myHoughCircles(Mat& img)
 	}
 
 	std::sort(accu_values.begin(), accu_values.end(), descendSorting);
-	uchar limite = accu_values[20];
+	uchar limite = accu_values[50];
 
 	std::vector<Point> centers;
 	for(int j=0; j < img.rows; ++j)
@@ -284,7 +287,10 @@ void myHoughCircles(Mat& img)
 					}
 				}
 				if(!ignore)
+				{
 					centers.push_back(std::move(Point(i,j)));
+					circle(img_coul,Point(i,j),3,Scalar(0,255,0),3);
+				}
 			}
 		}
 	}
