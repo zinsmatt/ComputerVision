@@ -6,3 +6,4 @@ add_executable(${PROJECT_NAME} ${SRC_LIST})
 message(${SRC_LIST})
 target_link_libraries( Computer_Vision  opencv_core opencv_videostab opencv_videoio opencv_video opencv_ml opencv_calib3d opencv_objdetect opencv_features2d opencv_flann opencv_imgproc opencv_imgcodecs opencv_highgui)# ${OpenCV_LIBS} )
 
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")

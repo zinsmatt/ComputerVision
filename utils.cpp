@@ -13,7 +13,7 @@ void print_img(Mat& im)
 	{
 		for(int i = 0; i < im.size().width; i++)
 		{
-			std::cout << (int)im.at<uchar>(j,i) << " ";
+			std::cout << (int)im.at<short>(j,i) << " ";
 		}
 		std::cout << std::endl;
 	}
@@ -25,4 +25,9 @@ void save_img(Mat& img,const char* name)
 	compress_params.push_back(IMWRITE_JPEG_QUALITY);
 	compress_params.push_back(98);
 	imwrite(name, img, compress_params);
+}
+
+int distance(int xa, int ya, int xb, int yb)
+{
+	return round(sqrt((xa-xb)*(xa-xb) + (ya-yb)*(ya-yb)));
 }

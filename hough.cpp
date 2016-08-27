@@ -55,7 +55,7 @@ void houghLines(Mat &img)
 
 void myHoughLines(Mat& im)
 {
-	/* implementation of hough method */
+	/* implementation of the hough method to detect lines*/
 	Mat im_coul;
 	cvtColor(im,im_coul,CV_GRAY2RGB);
 
@@ -178,6 +178,154 @@ void houghCircles(Mat& img)
 		int radius = cvRound(circles[i][2]);
 		std::cout <<"radius : " << radius << std::endl;
 		circle(img_coul,center,radius,Scalar(0,255,0),3);
+	}
+
+	namedWindow("Circles",CV_WINDOW_AUTOSIZE);
+	imshow("Circles",img_coul);
+	waitKey(0);
+}
+
+void voteInAccu(Mat& accu, int pt_x, int pt_y, float dx, float dy)
+{
+	//add a vote in the accu (dx,dy) should be normalized
+	float x = pt_x, y = pt_y;
+	accu.at<int>(pt_y,pt_x)--;
+	while(round(x) < accu.rows && round(y) < accu.cols && round(x) > 0 && round(y) > 0)
+	{
+		accu.at<int>(round(y),round(x))++;
+		y += dy;
+		x += dx;
+	}
+
+	x = pt_x; y = pt_y;
+	while(round(x) < accu.rows && round(y) < accu.cols && round(x) > 0 && round(y) > 0)
+	{
+		accu.at<int>(cvRound(y),cvRound(x))++;
+		y -= dy;
+		x -= dx;
+	}
+}
+
+void myHoughCircles(Mat& img)
+{
+	/* implementation of the hough method to detect circles */
+	int minDistBetweenCenters = 30;
+
+	Mat img_coul;
+	cvtColor(img,img_coul,CV_GRAY2RGB);
+
+	Mat blurred = img.clone();
+	GaussianBlur(img,blurred,Size(3,3),3);
+
+	Mat deriv_x, deriv_y;
+	Sobel(blurred,deriv_x, CV_16S,1,0);
+	Sobel(blurred,deriv_y, CV_16S,0,1);
+
+	Mat edges;
+	Canny(blurred,edges,150,200);
+
+	namedWindow("Edges",CV_WINDOW_AUTOSIZE);
+	imshow("fen",edges);
+
+	// Find centers
+	Mat accu = Mat::zeros(img.rows,img.cols,CV_32SC1);
+	int nb_edges = 0;
+	bool stop = false;
+	for(int j=0; j<edges.rows; j++)
+	{
+		for(int i=0; i<edges.cols; i++)
+		{
+			if(edges.at<uchar>(j,i) == 255)
+			{// it is an edge
+				++nb_edges;
+				short dx = deriv_x.at<short>(j,i);
+				short dy = deriv_y.at<short>(j,i);
+				float norme = sqrt(dx*dx + dy*dy);
+				voteInAccu(accu,i,j,(float)dx/norme,(float)dy/norme);
+			}
+		}
+		if(stop) break;
+	}
+	Mat accu_norm, accu_scaled;
+	normalize(accu, accu_norm, 0, 255, NORM_MINMAX, CV_32SC1);
+	convertScaleAbs(accu_norm,accu_scaled);
+
+	GaussianBlur(accu_scaled,accu_scaled,Size(5,5),5);
+
+	namedWindow("Hough Space",CV_WINDOW_AUTOSIZE);
+	imshow("Hough Space",accu_scaled);
+
+	std::vector<uchar> accu_values;
+	for(int j=0; j<accu.rows; ++j)
+	{
+		for(int i=0; i<accu.rows; ++i)
+		{
+			accu_values.push_back(accu_scaled.at<uchar>(j,i));
+		}
+	}
+
+	std::sort(accu_values.begin(), accu_values.end(), descendSorting);
+	uchar limite = accu_values[20];
+
+	std::vector<Point> centers;
+	for(int j=0; j < img.rows; ++j)
+	{
+		for(int i=0; i < img.cols; ++i)
+		{
+			if(accu_scaled.at<uchar>(j,i) >= limite)
+			{
+				bool ignore = false;
+				for(int c=0;c < centers.size(); ++c)
+				{
+					if(distance(i,j,centers[c].x,centers[c].y)<minDistBetweenCenters)
+					{
+						ignore = true;
+						break;
+					}
+				}
+				if(!ignore)
+					centers.push_back(std::move(Point(i,j)));
+			}
+		}
+	}
+	std::cout << "nb centers found : " << centers.size() << std::endl;
+
+
+	// Find radius
+	Mat accu_radius = Mat::zeros(centers.size(),round(1.5*max(img.rows,img.cols)), CV_32SC1);
+	for(int j=0; j<edges.rows; ++j)
+	{
+		for(int i=0; i<edges.cols; ++i)
+		{
+			if(edges.at<uchar>(j,i) == 255)
+			{
+				for(int k=0; k<centers.size();++k)
+				{
+					++accu_radius.at<int>(k,distance(i,j,centers[k].x,centers[k].y));
+				}
+			}
+		}
+	}
+
+	vector<int> radius;
+	for(int k=0; k<centers.size(); ++k)
+	{
+		int i_max = 0;
+		int val_max = 0;
+		for(int  i=0; i<accu_radius.cols; ++i)
+		{
+			if(accu_radius.at<int>(k,i)>val_max)
+			{
+				val_max = accu_radius.at<int>(k,i);
+				i_max = i;
+			}
+		}
+		radius.push_back(i_max);
+	}
+
+	for(int i=0; i<radius.size(); ++i)
+	{
+		circle(img_coul,centers[i],radius[i],Scalar(0,255,255),3);
 	}
 
 	namedWindow("Circles",CV_WINDOW_AUTOSIZE);

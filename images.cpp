@@ -47,7 +47,6 @@ void edges(Mat& img, int low_th)
 	namedWindow("canny", CV_WINDOW_AUTOSIZE);
 	imshow("canny", detected_edges);
 	waitKey(0);
-
 }
 
 void noise_and_blur(Mat& img)

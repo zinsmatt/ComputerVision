@@ -22,8 +22,9 @@ int main(int argc, char* argv[])
 	const char* name4 = "images/sudoku.jpg";
 	const char* name5 = "images/boules.jpg";
 	const char* name6 = "images/coins.jpg";
+	const char* name7 = "images/circle.png";
 
-	Mat img = imread(name2, CV_LOAD_IMAGE_UNCHANGED);
+	Mat img = imread(name7, CV_LOAD_IMAGE_UNCHANGED);
 	if (img.empty())
 	{
 		std::cerr << "Probleme chargement image\n";
@@ -44,9 +45,10 @@ int main(int argc, char* argv[])
 	//edges(img,50);
 	//houghLines(img);
 	//webcam_edges();
-	myHoughLines(img);
+	//myHoughLines(img);
 	//webcam_corners();
 	//houghCircles(img);
+	myHoughCircles(img);
 
 	destroyAllWindows();
 
