@@ -8,6 +8,7 @@
 #include "utils.h"
 #include "webcam.h"
 #include "hough.h"
+#include "cartoon.h"
 
 
 using namespace std;
@@ -49,7 +50,8 @@ int main(int argc, char* argv[])
 	//myHoughLines(img);
 	//webcam_corners();
 	//houghCircles(img);
-	myHoughCircles(img);
+	//myHoughCircles(img);
+	mainCartoon();
 
 	destroyAllWindows();
 

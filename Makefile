@@ -114,6 +114,30 @@ Computer_Vision/fast:
 	$(MAKE) -f CMakeFiles/Computer_Vision.dir/build.make CMakeFiles/Computer_Vision.dir/build
 .PHONY : Computer_Vision/fast
 
+cartoon.o: cartoon.cpp.o
+.PHONY : cartoon.o
+
+# target to build an object file
+cartoon.cpp.o:
+	$(MAKE) -f CMakeFiles/Computer_Vision.dir/build.make CMakeFiles/Computer_Vision.dir/cartoon.cpp.o
+.PHONY : cartoon.cpp.o
+
+cartoon.i: cartoon.cpp.i
+.PHONY : cartoon.i
+
+# target to preprocess a source file
+cartoon.cpp.i:
+	$(MAKE) -f CMakeFiles/Computer_Vision.dir/build.make CMakeFiles/Computer_Vision.dir/cartoon.cpp.i
+.PHONY : cartoon.cpp.i
+
+cartoon.s: cartoon.cpp.s
+.PHONY : cartoon.s
+
+# target to generate assembly for a file
+cartoon.cpp.s:
+	$(MAKE) -f CMakeFiles/Computer_Vision.dir/build.make CMakeFiles/Computer_Vision.dir/cartoon.cpp.s
+.PHONY : cartoon.cpp.s
+
 hough.o: hough.cpp.o
 .PHONY : hough.o
 
@@ -243,6 +267,9 @@ help:
 	@echo "... Computer_Vision"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... cartoon.o"
+	@echo "... cartoon.i"
+	@echo "... cartoon.s"
 	@echo "... hough.o"
 	@echo "... hough.i"
 	@echo "... hough.s"
