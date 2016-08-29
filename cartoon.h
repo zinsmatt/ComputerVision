@@ -8,5 +8,6 @@ namespace cv{
 void mainCartoon();
 void cartoonifyImage(cv::Mat&, cv::Mat&);
 void evilMode(cv::Mat&, cv::Mat&);
+void alienMode(cv::Mat&, cv::Mat&);
 #endif // CARTOON_H
 

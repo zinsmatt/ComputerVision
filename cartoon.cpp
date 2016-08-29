@@ -28,6 +28,7 @@ void mainCartoon()
 
 		cartoonifyImage(frame,outFrame);
 		//evilMode(frame,outFrame);
+		//alienMode(frame,outFrame);
 		imshow("Cartoon", outFrame);
 		char code = waitKey(20);
 		if(code == 27)
@@ -73,6 +74,7 @@ void cartoonifyImage(Mat& frame, Mat& outFrame)
 	/*Mat maskEvil;
 	evilMode(frame,maskEvil);
 	outFrame.setTo(0, maskEvil);*/
+	alienMode(outFrame,outFrame);
 }
 
 void evilMode(Mat& frame, Mat& outFrame)
@@ -86,4 +88,46 @@ void evilMode(Mat& frame, Mat& outFrame)
 	edges += edges2;
 	threshold(edges, outFrame, 12, 255, THRESH_BINARY);
 	medianBlur(outFrame, outFrame, 3);
+}
+
+void alienMode(Mat& frame, Mat& outFrame)
+{
+	Scalar color(CV_RGB(255,255,0));
+	Size size = frame.size();
+	int thickness = 4;
+	int sw = size.width;
+	int sh = size.height;
+	int faceH = sh/2 * 70/100;
+	int faceW = faceH * 72/100;
+	outFrame = frame.clone();
+
+	// draw head
+	ellipse(outFrame, Point(sw/2,sh/2), Size(faceW,faceH),0 ,0, 360, color, thickness, CV_AA);
+
+	// draw eyes
+	int eyeW = faceW * 23/100;
+	int eyeH = faceH * 11/100;
+	int eyeX = faceW * 48/100;
+	int eyeY = faceH * 13/100;
+	Size eyeSize = Size(eyeW, eyeH);
+	int eyeA = 15;
+	int eyeYshift = 11;
+	ellipse(outFrame, Point(sw/2 - eyeX, sh/2 - eyeY), eyeSize, 0, 180+eyeA, 360-eyeA, color, thickness, CV_AA);
+	ellipse(outFrame, Point(sw/2 - eyeX, sh/2 - eyeY - eyeYshift), eyeSize, 0, 0+eyeA, 180-eyeA, color, thickness, CV_AA);
+	ellipse(outFrame, Point(sw/2 + eyeX, sh/2 - eyeY), eyeSize, 0, 180+eyeA, 360-eyeA, color, thickness, CV_AA);
+	ellipse(outFrame, Point(sw/2 + eyeX, sh/2 - eyeY - eyeYshift), eyeSize, 0, 0+eyeA, 180-eyeA, color, thickness, CV_AA);
+
+	// draw mouth
+	int mouthY = faceH * 48/100;
+	int mouthW = faceW * 45/100;
+	int mouthH = faceH * 6/100;
+	ellipse(outFrame, Point(sw/2, sh/2 + mouthY), Size(mouthW, mouthH), 0, 0, 180, color, thickness, CV_AA);
+
+	// draw text
+	int fontFace = FONT_HERSHEY_COMPLEX;
+	float fontScale = 1.0f;
+	int fontThickness = 2;
+	char *msg = "Put your face here";
+	putText(outFrame, msg, Point(sw * 23/100, sh * 10/100), fontFace, fontScale, color, fontThickness, CV_AA);
+
 }
