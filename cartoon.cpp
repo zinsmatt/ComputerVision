@@ -67,14 +67,15 @@ void cartoonifyImage(Mat& frame, Mat& outFrame)
 		bilateralFilter(smallImg,tmp,ksize,sigmaColor, sigmaSpace);
 		smallImg = tmp.clone();
 	}
-	Mat bigImg;
-	resize(smallImg,outFrame,size, 0, 0, INTER_LINEAR);
-	outFrame.setTo(0, mask);
+	Mat bigImg, tempFrame;
+	resize(smallImg,tempFrame,size, 0, 0, INTER_LINEAR);
+	tempFrame.setTo(0, mask);
 
 	/*Mat maskEvil;
 	evilMode(frame,maskEvil);
 	outFrame.setTo(0, maskEvil);*/
-	alienMode(outFrame,outFrame);
+	alienMode(tempFrame,outFrame, smallImg, mask);
+
 }
 
 void evilMode(Mat& frame, Mat& outFrame)
@@ -90,7 +91,7 @@ void evilMode(Mat& frame, Mat& outFrame)
 	medianBlur(outFrame, outFrame, 3);
 }
 
-void alienMode(Mat& frame, Mat& outFrame)
+void alienMode(Mat& frame, Mat& outFrame, Mat& smallFrame, Mat& edges)
 {
 	Scalar color(CV_RGB(255,255,0));
 	Size size = frame.size();
@@ -129,5 +130,69 @@ void alienMode(Mat& frame, Mat& outFrame)
 	int fontThickness = 2;
 	char *msg = "Put your face here";
 	putText(outFrame, msg, Point(sw * 23/100, sh * 10/100), fontFace, fontScale, color, fontThickness, CV_AA);
+
+
+	Mat yuv = Mat(smallFrame.size(), CV_8UC3);
+	cvtColor(smallFrame, yuv, CV_BGR2YCrCb);
+
+	sw = smallFrame.size().width;
+	sh = smallFrame.size().height;
+	Mat mask, maskPlusBorder;
+	maskPlusBorder = Mat::zeros(sh+2, sw+2, CV_8UC1);
+	mask = maskPlusBorder(Rect(1,1,sw,sh));
+	resize(edges,mask,smallFrame.size());
+	const int EDGES_THRESHOLD = 80;
+	threshold(mask, mask, EDGES_THRESHOLD, 255, THRESH_BINARY);
+	dilate(mask,mask,Mat());
+	erode(mask,mask,Mat());
+
+	int const NUM_SKIN_POINTS = 6;
+	Point skinPts[NUM_SKIN_POINTS];
+	skinPts[0] = Point(sw/2			, sh/2-sh/6);
+	skinPts[1] = Point(sw/2-sw/11	, sh/2-sh/6);
+	skinPts[2] = Point(sw/2+sw/11	, sh/2-sh/6);
+	skinPts[3] = Point(sw/2			, sh/2+sh/6);
+	skinPts[4] = Point(sw/2-sw/9	, sh/2+sh/6);
+	skinPts[5] = Point(sw/2+sw/9	, sh/2+sh/6);
+
+	const int LOWER_Y  = 60;
+	const int UPPER_Y  = 80;
+	const int LOWER_Cr = 15;
+	const int UPPER_Cr = 25;
+	const int LOWER_Cb = 15;
+	const int UPPER_Cb = 20;
+
+	Scalar lowerDiff = Scalar(LOWER_Y, LOWER_Cr, LOWER_Cb);
+	Scalar upperDiff = Scalar(UPPER_Y, UPPER_Cr, UPPER_Cb);
+
+	const int CONNECTED_COMPONENTS = 4;
+	const int flags = CONNECTED_COMPONENTS | FLOODFILL_FIXED_RANGE | FLOODFILL_MASK_ONLY;
+	Mat edgesMask = mask.clone();
+	//for(int i=0;i< 1/*NUM_SKIN_POINTS*/; i++)
+	//{
+	//	std::cout << "iteration 1 \n";
+	//	floodFill(yuv, maskPlusBorder, skinPts[i], Scalar(), NULL, lowerDiff, upperDiff, flags);
+	//}*/
+
+
+	//outFrame = maskPlusBorder.clone();
+	for(int i=0;i<NUM_SKIN_POINTS;i++)
+	{
+		circle(mask,skinPts[i],8,Scalar(255,0,0),2);
+		floodFill(yuv, maskPlusBorder, skinPts[i], Scalar(), NULL, lowerDiff, upperDiff, flags);
+
+	}
+	mask -= edgesMask;
+	resize(mask, outFrame, outFrame.size());
+
+	//mask *= 255;
+	/*for(int j=0;j<outFrame.rows;j++)
+	{
+		for(int i=0;i<outFrame.cols;i++)
+		{
+			if(outFrame.at<uchar>(j,i) == 1)
+				outFrame.at<uchar>(j,i) = 255;
+		}
+	}*/
 
 }
